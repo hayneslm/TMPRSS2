@@ -88,5 +88,25 @@ T2_sigvsNOT = left_join(Input_TMPRSS2_filtered, Input_uPA, by = 'Variant') %>%
   
 all_T2_preferred = rbind(T2_preferred,T2_sigvsNOT)
 
+#Looking at enriched over WT
+maxWTscore = Input_TMPRSS2_filtered %>% filter(type == 'wt') %>%
+  select(log2FoldChange) %>% max() %>% print()
+
+T2_over_WT = Input_TMPRSS2_filtered %>% filter(log2FoldChange > maxWTscore) 
+
+T2_over_WT_compare = left_join(T2_over_WT,Input_uPA_filtered, by = 'Variant') %>% 
+  na.omit() %>% filter(log2FoldChange.x > log2FoldChange.y) %>% 
+  separate(Variant, into = c("AA", "rest"), sep = "(?<=[A-Z])(?=[0-9])") %>%
+  separate(rest, into = c("Pos", "Mut"), sep = "(?<=[0-9])(?=[A-Z])") %>%
+  filter(Mut != 'X') %>% select(Pos) %>% unique() %>% 
+  write_csv(.,"postitions.csv")
+  
+
+
+
+
+
+
+
   
   
