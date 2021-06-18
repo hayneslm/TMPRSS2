@@ -47,6 +47,28 @@ ggplot()+
               stroke = 0.5, size = 1.2)+
   geom_vline(xintercept = 100, color = "black", linetype = "dashed")
 
+#Make MA Plot (uOA)
+ggplot()+
+  scale_x_log10()+
+  geom_hline(yintercept = 0, color = "black") +
+  ggtitle('uPA MA Plot')+
+  theme_classic()+
+  scale_shape_manual(values = c(1,19))+
+  geom_jitter(data = subset(Input_uPA, type == 'Missense'),
+              aes(x = baseMean, y = log2FoldChange, 
+                  color = type, shape = score),
+              stroke = 0.5, size = 1.2)+
+  geom_jitter(data = subset(Input_uPA, type == 'Nonsense'),
+              aes(x = baseMean, y = log2FoldChange, 
+                  color = type, shape = score),
+              stroke = 0.5, size = 1.2)+
+  geom_jitter(data = subset(Input_uPA, type == 'wt'),
+              aes(x = baseMean, y = log2FoldChange, 
+                  color = type, shape = score),
+              stroke = 0.5, size = 1.2)+
+  geom_vline(xintercept = 100, color = "black", linetype = "dashed")
+
+
 
 #Filter data, basemean = 100, padj < = 0.5
 Input_TMPRSS2_filtered = Input_TMPRSS2 %>% filter(baseMean > 100, padj <= 0.05)
