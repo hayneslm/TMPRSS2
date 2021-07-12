@@ -1,4 +1,6 @@
 install.packages("tidyverse")
+install.packages("dplyr")
+library(dplyr)
 library(tidyverse)
 library(readr)
 library(scales)
@@ -123,9 +125,49 @@ T2_over_WT_compare = left_join(T2_over_WT,Input_uPA_filtered, by = 'Variant') %>
   filter(Mut != 'X') %>% select(Pos) %>% unique() %>% 
   write_csv(.,"postitions.csv")
   
+#look for depleted surface sites=>THIS ISNT INFORMATIVE
+depleted_surface =T2_uPA_joined %>% filter(type == 'Missense') %>% 
+  filter(TMPRSS2_log2<uPA_log2)
+  #filter(TMPRSS2_log2<0, uPA_log2>0)
+write_tsv(depleted_surface,"depleted_surface.xls")
+
+#Volcano Plots
+
+#Most enriched
+ggplot()+
+  theme_classic()+
+  scale_shape_manual(values = c(1,19))+
+  geom_jitter(data = subset(Input_TMPRSS2, type == 'Missense'),
+              aes(x = log2FoldChange, y = log.padj, 
+                  color = type, shape = score),
+              stroke = 0.5, size = 1.2)+
+  geom_jitter(data = subset(Input_TMPRSS2, type == 'Nonsense'),
+              aes(x = log2FoldChange, y = log.padj,
+                  color = type, shape = score),
+              stroke = 0.5, size = 1.2)
+
+#Performs better against TMPRSS2 than uPA
 
 
-
+ggplot()+
+  scale_x_log10()+
+  geom_hline(yintercept = 0, color = "black") +
+  ggtitle('TMPRSS2 MA Plot')+
+  theme_classic()+
+  scale_shape_manual(values = c(1,19))+
+  geom_jitter(data = subset(Input_TMPRSS2, type == 'Missense'),
+              aes(x = baseMean, y = log2FoldChange, 
+                  color = type, shape = score),
+              stroke = 0.5, size = 1.2)+
+  geom_jitter(data = subset(Input_TMPRSS2, type == 'Nonsense'),
+              aes(x = baseMean, y = log2FoldChange, 
+                  color = type, shape = score),
+              stroke = 0.5, size = 1.2)+
+  geom_jitter(data = subset(Input_TMPRSS2, type == 'wt'),
+              aes(x = baseMean, y = log2FoldChange, 
+                  color = type, shape = score),
+              stroke = 0.5, size = 1.2)+
+  geom_vline(xintercept = 100, color = "black", linetype = "dashed")
 
 
 
