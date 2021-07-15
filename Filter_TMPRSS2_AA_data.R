@@ -134,43 +134,56 @@ write_tsv(depleted_surface,"depleted_surface.xls")
 #Volcano Plots
 
 #Most enriched
+
 ggplot()+
   theme_classic()+
   scale_shape_manual(values = c(1,19))+
-  geom_jitter(data = subset(Input_TMPRSS2, type == 'Missense'),
+  geom_point(data = subset(Input_TMPRSS2 %>% 
+                             filter(baseMean>100), type == 'Missense'),
               aes(x = log2FoldChange, y = log.padj, 
                   color = type, shape = score),
               stroke = 0.5, size = 1.2)+
-  geom_jitter(data = subset(Input_TMPRSS2, type == 'Nonsense'),
+  geom_text(mapping = aes(x = log2FoldChange, y = log.padj, label = Variant),
+            data = Input_TMPRSS2 %>% filter(type == 'Missense',
+                                            log2FoldChange>2.2,
+                                            score == 'pass',
+                                            baseMean>100),
+            hjust='left')+
+  
+  geom_point(data = subset(Input_TMPRSS2, type == 'Nonsense'),
               aes(x = log2FoldChange, y = log.padj,
                   color = type, shape = score),
-              stroke = 0.5, size = 1.2)
+              stroke = 0.5, size = 1.2)+
+  geom_hline(yintercept = 1.32, color = "black", linetype = "dashed")+
+  geom_vline(xintercept = 0, color = "black", linetype = "solid")+
+  theme(legend.position = "none")
+
+ggsave(device = "png", filename = "volcano.png", width = 11, height = 8.5,
+       units = "in")
+
 
 #Performs better against TMPRSS2 than uPA
-
-
 ggplot()+
-  scale_x_log10()+
-  geom_hline(yintercept = 0, color = "black") +
-  ggtitle('TMPRSS2 MA Plot')+
   theme_classic()+
-  scale_shape_manual(values = c(1,19))+
-  geom_jitter(data = subset(Input_TMPRSS2, type == 'Missense'),
-              aes(x = baseMean, y = log2FoldChange, 
-                  color = type, shape = score),
+  geom_jitter(data = subset(T2_uPA_joined, type == 'Missense'),
+              aes(y = TMPRSS2_log2, x = uPA_log2, 
+                  color = type),
               stroke = 0.5, size = 1.2)+
-  geom_jitter(data = subset(Input_TMPRSS2, type == 'Nonsense'),
-              aes(x = baseMean, y = log2FoldChange, 
-                  color = type, shape = score),
+  geom_jitter(data = subset(T2_uPA_joined, type == 'Nonsense'),
+              aes(y = TMPRSS2_log2, x = uPA_log2, 
+                  color = type),
               stroke = 0.5, size = 1.2)+
-  geom_jitter(data = subset(Input_TMPRSS2, type == 'wt'),
-              aes(x = baseMean, y = log2FoldChange, 
-                  color = type, shape = score),
-              stroke = 0.5, size = 1.2)+
-  geom_vline(xintercept = 100, color = "black", linetype = "dashed")
+  #geom_hline(yintercept = 1.32, color = "black", linetype = "dashed")+
+  geom_hline(yintercept = 0, color = "black", linetype = "solid")+
+  geom_vline(xintercept = 0, color = "black", linetype = "solid")+
+  theme(legend.position = "none")+
+  geom_text(mapping = aes(x = uPA_log2, y = TMPRSS2_log2, label = Variant),
+            data = T2_uPA_joined %>% filter(type == 'Missense',
+                                           uPA_log2 < 0,
+                                           TMPRSS2_log2 > 0),
+            check_overlap = TRUE, hjust = "left")
 
-
-
-
+ggsave(device = "png", filename = "T2_preferred.png", width = 11, height = 8.5,
+       units = "in")
   
   
